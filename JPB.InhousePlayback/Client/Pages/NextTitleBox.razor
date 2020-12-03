@@ -1,0 +1,20 @@
+﻿@inherits NextTitleBoxBase
+@if (NextTitle != null)
+{
+	<div class="card m-2 mx-auto" style="width: 12rem;">
+		<button @onclick="ElapsedDone" class="btn btn-link" name="nextTitleBtn">
+			<img src="/api/TitlesApi/Thumbnail?titleId=@NextTitle.TitleId"
+			     class="card-img-top" alt="...">
+			<div class="card-body">
+				<h5 class="card-title">
+					<span>Playing next:</span>
+					@NextTitle.Name
+					@if (TimeUntilAutoStart != null)
+					{
+						<span class="text text-center text-primary">In @TimeUntilAutoStart.Value.TotalSeconds</span>
+					}
+				</h5>
+			</div>
+		</button>
+	</div>
+}

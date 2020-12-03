@@ -1,0 +1,19 @@
+﻿@using JPB.InhousePlayback.Client.Pages.Auth
+@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+@inject ClientAuthenticationStateProvider ClientAuthenticationStateProvider
+@inject CurrentUserStore CurrentUserStore
+
+<div class="main">
+	<AuthorizeView>
+		<Authorized>
+			<div class="top-row px-4" style="z-index: 400">
+				<button class="btn btn-link" @onclick="ClientAuthenticationStateProvider.Logoff">Logoff</button>
+			</div>
+		</Authorized>
+	</AuthorizeView>
+
+	<div class="content px-4" style="z-index: 500">
+		@Body
+	</div>
+</div>

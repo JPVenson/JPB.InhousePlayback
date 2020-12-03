@@ -1,0 +1,21 @@
+@page "/Seasons/{GenreId}"
+@inherits SeasonsBase
+
+<h1>Seasons</h1>
+
+<div class="row">
+	@foreach (var season in Seasons.OrderBy(e => e.OrderNo))
+	{
+		<button @onclick="(() => SetSeason(season))" class="btn btn-link m-2 mx-auto">
+			<div class="card card-unified-container">
+				<div class="card-unified-img-container">
+					<img src="/api/SeasonsApi/GetImage?seasonId=@season.SeasonId"
+					     class="card-img-top" />
+					<div class="card-body">
+						<h5 class="card-title">@season.Name</h5>
+					</div>
+				</div>
+			</div>
+		</button>
+	}
+</div>

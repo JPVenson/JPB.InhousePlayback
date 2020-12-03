@@ -1,0 +1,280 @@
+﻿@page "/ManageData"
+@using Microsoft.AspNetCore.Authorization
+@using System.IO
+@using JPB.InhousePlayback.Client.Util
+@inherits UpdateDataBase
+
+@functions {
+
+}
+@attribute [Authorize(Roles = "Admin")]
+<div class="d-flex">
+	<h3 class="float-left">
+		UpdateData
+	</h3>
+	@{
+		var needAnyUpdate = Genre.Any(f => CanUpdate(f) || f.Children.Any(e => CanUpdate(e) || e.Children.Any(CanUpdate)));
+		if (needAnyUpdate)
+		{
+			<div class="float-left">
+				<button @onclick="UpdateAll" class="btn btn-primary">Update All</button>
+			</div>
+		}
+	}
+</div>
+
+<style>
+	.thumbnail-image-container {
+		width: 45px;
+		height: 38px;
+	}
+
+		.thumbnail-image-container > img {
+			max-width: 45px;
+			max-height: 38px;
+		}
+</style>
+
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<td>Id</td>
+			<td>Name</td>
+			<td>Location</td>
+			<td>Length</td>
+			<td>OffsetStart</td>
+			<td>OffsetEnd</td>
+			<td></td>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var genre in this.Genre)
+		{
+			<tr class="@(CanUpdate(genre) ? "bg-primary" : "") @(genre.Children.Any(e => CanUpdate(e) || e.Children.Any(CanUpdate)) ? "bg-info" : "")">
+				<td>
+					<button class="btn btn-link no-fx" @onclick="(() => ExpandGenre(genre))">
+						<div class="d-flex">
+							<div class="float-left">
+								@genre.Data.GenreId
+							</div>
+							<div class="float-right thumbnail-image-container">
+								<img src="/api/GenreApi/GetImage?genreId=@genre.Data.GenreId"
+									 style=""
+									 class="img-thumbnail" />
+							</div>
+						</div>
+					</button>
+				</td>
+				<td>
+					<input @bind="genre.Data.Name" type="text" class="form-control" />
+				</td>
+				<td>@genre.Data.Location</td>
+				<td>
+					@if (genre.Data.PlaybackLength.HasValue)
+					{
+						<span>@TimespanHumanizer.Humanize(TimeSpan.FromSeconds(genre.Data.PlaybackLength.Value))</span>
+					}
+				</td>
+				<td>
+					<input @bind="genre.Data.OffsetStart" type="number" class="form-control" />
+				</td>
+				<td>
+					<input @bind="genre.Data.OffsetEnd" type="number" class="form-control" />
+				</td>
+				<td>
+				</td>
+			</tr>
+			@if (genre.Children.Any() && !genre.Collapsed)
+			{
+				<tr>
+					<td colspan="7" class="pl-4 pr-0">
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<td>Id</td>
+									<td>Name</td>
+									<td>Location</td>
+									<td>OrderNo</td>
+									<td></td>
+									<td>Length</td>
+									<td>OffsetStart</td>
+									<td>OffsetEnd</td>
+									<td></td>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach (var season in genre.Children.OrderBy(e => e.Data.OrderNo))
+								{
+									<tr class="@(CanUpdate(season) ? "bg-primary" : "") @(season.Children.Any(CanUpdate) ? "bg-info" : "")">
+										<td>
+											<button class="btn btn-link no-fx" @onclick="(() => ExpandSeason(season))">
+												<div class="d-flex">
+													<div class="float-left">
+														@season.Data.SeasonId
+													</div>
+													<div class="float-right thumbnail-image-container">
+														<img src="/api/SeasonsApi/GetImage?seasonId=@season.Data.SeasonId"
+															 style=""
+															 class="img-thumbnail" />
+													</div>
+												</div>
+											</button>
+										</td>
+										<td>
+											<input @bind="season.Data.Name" type="text" class="form-control" />
+										</td>
+										<td>
+											@if (season.Data.Location.StartsWith(genre.Data.Location))
+											{
+												<span>@season.Data.Location.Substring(genre.Data.Location.Length)</span>
+											}
+											else
+											{
+												<span>@season.Data.Location</span>
+											}
+										</td>
+										<td>
+											<input @bind="season.Data.OrderNo" type="number" class="form-control" />
+										</td>
+										<td>
+											<div class="d-flex">
+												@if (season.Data.OrderNo != genre.Children.Select(f => f.Data.OrderNo).Min())
+												{
+													<button class="btn btn-outline-secondary float-left" @onclick="(() => MoveSeason(genre, season, true))">Up</button>
+												}
+												@if (season.Data.OrderNo < genre.Children.Select(f => f.Data.OrderNo).Max())
+												{
+													<button class="btn btn-outline-secondary float-right" @onclick="(() => MoveSeason(genre, season, false))">Down</button>
+												}
+											</div>
+										</td>
+										<td>
+											@if (season.Data.PlaybackLength.HasValue)
+											{
+												<span>@TimespanHumanizer.Humanize(TimeSpan.FromSeconds(season.Data.PlaybackLength.Value))</span>
+											}
+										</td>
+										<td>
+											<input @bind="season.Data.OffsetStart" type="number"
+											        class="form-control"
+											        placeholder="@TimeSpan.FromSeconds(GetImgMarker.GetStartMarker(null, season.Data, genre.Data) ?? 0).TotalSeconds" />
+										</td>
+										<td>
+											<input @bind="season.Data.OffsetEnd" type="number"
+											        class="form-control"
+											        placeholder="@TimeSpan.FromSeconds(GetImgMarker.GetEndMarker(null, season.Data, genre.Data) ?? 0).TotalSeconds" />
+										</td>
+										<td>
+										</td>
+									</tr>
+
+									@if (season.Children.Any() && !season.Collapsed)
+									{
+										<tr>
+											<td colspan="10" class="pl-4 pr-0">
+												<table class="table table-striped">
+													<thead>
+														<tr>
+															<td>Id</td>
+															<td>Name</td>
+															<td>Location</td>
+															<td>OrderNo</td>
+															<td></td>
+															<td>Length</td>
+															<td>OffsetStart</td>
+															<td>OffsetEnd</td>
+															<td></td>
+														</tr>
+													</thead>
+													<tbody>
+														@foreach (var title in season.Children.OrderBy(e => e.Data.OrderNo))
+														{
+															<tr class="@(CanUpdate(title) ? "bg-primary" : "")">
+																<td>
+																	@title.Data.TitleId
+																</td>
+																<td>
+																	<input @bind="title.Data.Name" type="text" class="form-control" />
+																</td>
+																<td>
+																	@if (title.Data.Location.StartsWith(season.Data.Location))
+																	{
+																		<span>@title.Data.Location.Substring(season.Data.Location.Length)</span>
+																	}
+																	else
+																	{
+																		<span>@title.Data.Location</span>
+																	}
+																</td>
+																<td>
+																	<input @bind="title.Data.OrderNo" type="number" class="form-control" />
+																</td>
+																<td>
+																	<div class="d-flex">
+																		@if (title.Data.OrderNo != season.Children.Select(f => f.Data.OrderNo).Min())
+																		{
+																			<button class="btn btn-outline-secondary float-left"
+																			        @onclick="(() => MoveTitle(season, title, true))">Up</button>
+																		}
+																		@if (title.Data.OrderNo < season.Children.Select(f => f.Data.OrderNo).Max())
+																		{
+																			<button class="btn btn-outline-secondary float-right"
+																			        @onclick="(() => MoveTitle(season, title, false))">Down</button>
+																		}
+																	</div>
+																</td>
+																<td>
+																	@if (title.Data.PlaybackLength.HasValue)
+																	{
+																		<span>@TimespanHumanizer.Humanize(TimeSpan.FromSeconds(title.Data.PlaybackLength.Value))</span>
+																	}
+																</td>
+																<td>
+																	<div class="d-flex">
+																		@if (GetImgMarker.GetStartMarker(title.Data, season.Data, genre.Data) != null)
+																		{
+																			<div class="float-left thumbnail-image-container">
+																				<img src="/api/TitlesApi/ThumbnailPreview?titleId=@title.Data.TitleId&fromEnd=false&position=@GetImgMarker.GetStartMarker(title.Data, season.Data, genre.Data)"
+																					 style=""
+																					 class="img-thumbnail" />
+																			</div>
+																		}
+																		<input @bind="title.Data.OffsetStart" type="number"
+																		        class="form-control float-right"
+																		        placeholder="@TimeSpan.FromSeconds(GetImgMarker.GetStartMarker(title.Data, season.Data, genre.Data) ?? 0).TotalSeconds" />
+																	</div>
+																</td>
+																<td>
+																	<div class="d-flex">
+																		@if (GetImgMarker.GetEndMarker(title.Data, season.Data, genre.Data) != null)
+																		{
+																			<div class="float-left thumbnail-image-container">
+																				<img src="/api/TitlesApi/ThumbnailPreview?titleId=@title.Data.TitleId&fromEnd=true&position=@GetImgMarker.GetEndMarker(title.Data, season.Data, genre.Data)"
+																					 style=""
+																					 class="img-thumbnail" />
+																			</div>
+																		}
+																		<input @bind="title.Data.OffsetEnd" type="number"
+																		        class="form-control float-right"
+																		        placeholder="@TimeSpan.FromSeconds(GetImgMarker.GetEndMarker(title.Data, season.Data, genre.Data) ?? 0).TotalSeconds" />
+																	</div>
+																</td>
+																<td>
+																</td>
+															</tr>
+
+														}
+													</tbody>
+												</table>
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			}
+		}
+	</tbody>
+</table>

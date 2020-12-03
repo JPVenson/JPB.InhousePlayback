@@ -1,0 +1,168 @@
+﻿/*NO FX*/
+
+@mixin no-margins {
+	@include no-margins-horizontal;
+	@include no-margins-vertical;
+}
+
+@mixin no-margins-horizontal {
+	@include no-margins-horizontal-left;
+	@include no-margins-horizontal-right;
+}
+
+@mixin no-margins-vertical {
+	@include no-margins-vertical-top;
+	@include no-margins-vertical-bottom;
+}
+
+@mixin no-margins-horizontal-left {
+	margin-left: 0 !important;
+}
+
+@mixin no-margins-horizontal-right {
+	margin-right: 0 !important;
+}
+
+@mixin no-margins-vertical-top {
+	margin-top: 0 !important;
+}
+
+@mixin no-margins-vertical-bottom {
+	margin-bottom: 0 !important;
+}
+
+@mixin no-padding {
+	@include no-padding-horizontal;
+	@include no-padding-vertical;
+}
+
+@mixin no-padding-horizontal {
+	@include no-padding-horizontal-left;
+	@include no-padding-horizontal-right;
+}
+
+@mixin no-padding-vertical {
+	@include no-padding-vertical-top;
+	@include no-padding-vertical-bottom;
+}
+
+@mixin no-padding-horizontal-left {
+	padding-left: 0 !important;
+}
+
+@mixin no-padding-horizontal-right {
+	padding-right: 0 !important;
+}
+
+@mixin no-padding-vertical-top {
+	padding-top: 0 !important;
+}
+
+@mixin no-padding-vertical-bottom {
+	padding-bottom: 0 !important;
+}
+
+@mixin no-fx {
+	@include no-fx-horizontal;
+	@include no-fx-vertical;
+}
+
+@mixin no-fx-horizontal {
+	@include no-margins-horizontal;
+	@include no-padding-horizontal;
+}
+
+@mixin no-fx-horizontal-left {
+	@include no-margins-horizontal-left;
+	@include no-padding-horizontal-left;
+}
+
+@mixin no-fx-horizontal-right {
+	@include no-margins-horizontal-right;
+	@include no-padding-horizontal-right;
+}
+
+@mixin no-fx-vertical {
+	@include no-margins-vertical;
+	@include no-padding-vertical;
+}
+
+@mixin no-fx-vertical-top {
+	@include no-margins-vertical-top;
+	@include no-padding-vertical-top;
+}
+@mixin no-fx-vertical-bottom {
+	@include no-margins-vertical-bottom;
+	@include no-padding-vertical-bottom;
+}
+
+$size: '';
+.no-fx#{$size} {
+	@include no-fx;
+}
+
+.no-padding#{$size} {
+	@include no-padding;
+}
+
+.no-margin#{$size} {
+	@include no-margins;
+}
+
+.no-fx-horizontal#{$size} {
+	@include no-margins-horizontal;
+	@include no-padding-horizontal;
+}
+
+.no-fx-horizontal-left#{$size} {
+	@include no-fx-horizontal-left;
+}
+
+.no-fx-horizontal-right#{$size} {
+	@include no-fx-horizontal-right;
+}
+
+.no-fx-vertical#{$size} {
+	@include no-margins-vertical;
+	@include no-padding-vertical;
+}
+
+.no-fx-vertical-top#{$size} {
+	@include no-fx-vertical-top;
+}
+
+.no-fx-vertical-bottom#{$size} {
+	@include no-fx-vertical-bottom;
+}
+
+.no-padding-horizontal#{$size} {
+	@include no-padding-horizontal;
+}
+
+.no-padding-vertical#{$size} {
+	@include no-padding-vertical;
+}
+
+.no-margin-vertical#{$size} {
+	@include no-margins-vertical;
+}
+
+.no-margin-horizontal#{$size} {
+	@include no-margins-horizontal;
+}
+
+.no-padding-horizontal-left#{$size} {
+	@include no-padding-horizontal-left;
+}
+
+.no-padding-horizontal-right#{$size} {
+	@include no-padding-horizontal-right;
+}
+
+.no-padding-vertical-top#{$size} {
+	@include no-padding-vertical-top;
+}
+
+.no-padding-vertical-bottom#{$size} {
+	@include no-padding-vertical-bottom;
+}

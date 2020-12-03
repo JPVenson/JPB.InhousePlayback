@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<Options xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Actions>
+    <string>sqlite</string>
+    <string>Data Source=H:\Code\JPB.InhousePlayback\JPB.InhousePlayback\Server\Playback.db;</string>
+    <string>\ns</string>
+    <string>JPB.InhousePlayback.Server.Services.Database.Models</string>
+    <string>\fkgen</string>
+    <string>\addConfigMethod</string>
+    <string>\withAutoCtor</string>
+    <string>\autoGenNames</string>
+    <string>\compile</string>
+    <string>H:\Code\JPB.InhousePlayback\JPB.InhousePlayback\Server\Services\Database\Models</string>
+    <string>\exit</string>
+  </Actions>
+</Options>

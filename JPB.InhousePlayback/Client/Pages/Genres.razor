@@ -1,0 +1,90 @@
+@page "/Genres"
+@using JPB.InhousePlayback.Shared.DbModels
+@inherits GenresBase
+
+
+@*<h2>Last Played</h2>
+<div class="row mb-5">
+	@foreach (var lastPlayed in LastPlayed)
+	{
+		<a href="/Player/@lastPlayed.IdTitle/@lastPlayed.Position" class="btn btn-link m-2 mx-auto card-unified-container">
+			<div class="card card-unified-container">
+				<div class="card-unified-img-container">
+					<img src="/api/TitlesApi/ThumbnailPreview?titleId=@lastPlayed.IdTitle&fromEnd=false&position=@lastPlayed.Position"
+						 class="card-img-top w-100 h-100" />
+				</div>
+				<div class="card-body">
+					<div class="card-title">
+						<h5>Continue </h5>
+						<span>
+							@lastPlayed.Title.Season.Genre.Name @lastPlayed.Title.Season.Name @lastPlayed.Title.Name
+						</span>
+					</div>
+				</div>
+			</div>
+		</a>
+	}
+</div>*@
+
+<h2>Genres</h2>
+<div class="row">
+	@foreach (var genre in Genre)
+	{
+		<div class="m-2 mx-auto">
+			<div class="d-flex">
+				<button @onclick="(() => SetGenre(genre))" class="btn btn-link card-unified-container float-left">
+					<div class="card card-unified-container">
+						<div class="card-unified-img-container">
+							<img src="/api/GenreApi/GetImage?genreId=@genre.GenreId"
+								 class="card-img-top" alt="...">
+							<div class="card-body">
+								<h5 class="card-title">@genre.Name</h5>
+							</div>
+						</div>
+					</div>
+				</button>
+				@{
+					var lastPlayed = LastPlayed.Where(e => e.Title.Season.IdGenre == genre.GenreId).ToArray();
+					if (lastPlayed.Any())
+					{
+						var latest = lastPlayed.OrderBy(e => e.PlaybackId).First();
+						var last = lastPlayed.OrderBy(e => e.PlaybackId).Last();
+						<div class="float-left card-unified-container">
+							<a href="/Player/@latest.IdTitle/@latest.Position" class="btn btn-link pb-0">
+								<div class="card card-unified-container-small">
+									<div class="card-unified-img-container">
+										<img src="/api/TitlesApi/ThumbnailPreview?titleId=@latest.IdTitle&fromEnd=false&position=@latest.Position"
+										     class="card-img-top"/>
+										
+										<div class="card-body">
+											<div class="card-title">
+												<span title="@latest.Title.Season.Name @latest.Title.Name">Continue Latest Episode</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</a>
+							@if (last.PlaybackId != latest.PlaybackId)
+							{
+								<a href="/Player/@last.IdTitle/@last.Position" class="btn btn-link pt-0">
+									<div class="card card-unified-container-small">
+										<div class="card-unified-img-container">
+											<img src="/api/TitlesApi/ThumbnailPreview?titleId=@last.IdTitle&fromEnd=false&position=@last.Position"
+											     class="card-img-top" />
+											<div class="card-body">
+												<div class="card-title">
+													<span title="@last.Title.Season.Name @last.Title.Name">Continue Last Episode</span>
+												</div>
+											</div>
+										</div>
+									</div>
+								</a>
+							}
+						</div>
+					}
+				}
+			</div>
+		</div>
+
+	}
+</div>

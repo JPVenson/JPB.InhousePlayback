@@ -1,0 +1,104 @@
+﻿@page "/Player/{TitleId}/{Position}"
+@page "/Player/{TitleId}"
+@layout PlayerLayout
+@using MimeKit
+@using Blazored.Video
+@using Blazored.Video.Support
+@using MimeKit
+@using JPB.InhousePlayback.Client.Components.VideoEx
+@using JPB.InhousePlayback.Client.Components.Fullscreen
+@using JPB.InhousePlayback.Client.Util
+@inherits VideoPlayerBase
+
+<div class="video-container" name="videoContainer">
+	<FullscreenComponent @ref="FullscreenComponent" OnFullscreenChanged="OnFullscreenChanged">
+		@if (CurrentPlayback != null)
+		{
+			<div class="w-100 h-100 m-0 p-0 fs-video" id="videoPlaybackContainer">
+				<VideoExComponent class="w-100 h-100 fs-video"
+								  @ref="BlazoredVideo"
+								  controls="controls"
+								  autofocus="true"
+								  GetPoster='GetPoster'
+								  ShowControls="ShowTitleInCurrentPlayback"
+								  ShowControlsChanged="ShowControlsExtChanged"
+								  VolumeChange="OnVolumeChanged"
+								  VideoEventOptions="VideoStateOptions"
+								  Play="OnPlayerPlayed"
+								  Ended="OnPlaybackEnded"
+								  TimeUpdate="OnTimeUpdate"
+								  Pause="OnPlayerPaused"
+								  FullscreenRequest="OnFullscreenRequest">
+					<source src="/Api/PlaybackApi/Playback?titleId=@CurrentPlayback.TitleId" type="@MimeTypes.GetMimeType(CurrentPlayback.Location)" />
+				</VideoExComponent>
+				@if (ShowTitleInCurrentPlayback || ShowVolume.HasValue)
+				{
+					<div class="fs-viedo-overlay fs-video-overlay-title w-100 d-flex fs-viedo-overlay-noevent">
+						<div class="w-100 d-flex">
+							@if (ShowTitleInCurrentPlayback)
+							{
+								<div class="mx-auto text-center">
+									<div class="fs-video-overlay-element">
+										<span>Now Playing:</span>
+										<h2 class="text text-info">@CurrentPlayback.Name</h2>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+
+					<div class="fs-viedo-overlay pl-5 fs-video-overlay-back">
+						<div class="fs-video-overlay-element">
+							<a class="btn btn-link" href="/Titles/@CurrentPlayback.IdSeason">
+								<span>&lt;</span>
+							</a>
+						</div>
+					</div>
+				}
+				@if (ShowVolume.HasValue)
+				{
+					<div class="fs-viedo-overlay pr-5 fs-video-overlay-volume fs-viedo-overlay-noevent">
+						<div class="fs-video-overlay-element">
+							<span>Volume:</span>
+							<h2 class="text text-info text-center">@(Volume * 100)</h2>
+						</div>
+					</div>
+				}
+				@if (ShowNextTitle || ShowTitleInCurrentPlayback)
+				{
+					<div class="fs-viedo-overlay pr-5 fs-video-overlay-nextTitle-full">
+						<div class="float-right">
+							@if (ShowNextTitle)
+							{
+								<div class="fs-video-overlay-element">
+									<NextTitleBox @ref="NextTitleBox">
+
+									</NextTitleBox>
+								</div>
+							}
+							else if (ShowTitleInCurrentPlayback && NextTitle != null)
+							{
+								<div class="fs-video-overlay-element">
+									<button @onclick="GoToNextTitle" class="btn btn-secondary">Next: @NextTitle.Name</button>
+								</div>
+							}
+						</div>
+					</div>
+				}
+
+				@if (LastPlayback != null)
+				{
+					<div class="fs-viedo-overlay pr-5 fs-video-overlay-continue-full">
+						<div class="float-right">
+							<div class="fs-video-overlay-element">
+								<button @onclick="(() => ContinuePlayback(LastPlayback.Position))" class="btn btn-secondary">
+									Continue at: @TimespanHumanizer.Humanize(TimeSpan.FromSeconds(LastPlayback.Position))
+								</button>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</FullscreenComponent>
+</div>

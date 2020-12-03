@@ -1,0 +1,105 @@
+﻿@using JPB.InhousePlayback.Client.Services.UserManager
+@using JPB.InhousePlayback.Client.Services.Breadcrumb
+@using JPB.InhousePlayback.Client.Pages.Auth
+@using JPB.InhousePlayback.Shared.DbModels
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject UserManagerService UserManagerService
+@inject BreadcrumbService BreadcrumbService
+@inject ClientAuthenticationStateProvider ClientAuthenticationStateProvider
+
+@code
+{
+	[CascadingParameter]
+	private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+}
+
+
+@*<div class="sidebar">
+		<NavMenu />
+	</div>*@
+
+<AuthorizeView>
+	<Authorized>
+		<div class="main">
+			<div class="top-row px-4" style="z-index: 400">
+				<div class="w-100">
+					<div class="float-left">
+						<a class="btn btn-link" href="/">
+							Home
+						</a>
+
+						<a class="btn btn-link" href="/Genres">
+							@if (BreadcrumbService.Genre != null)
+							{
+								@BreadcrumbService.Genre.Name
+							}
+							else
+							{
+								<span>Genre</span>
+							}
+						</a>
+
+						@if (BreadcrumbService.Season != null)
+						{
+							<a class="btn btn-link" href="/Seasons/@BreadcrumbService.Season.IdGenre">
+								@BreadcrumbService.Season.Name
+							</a>
+						}
+						@if (BreadcrumbService.Title != null && BreadcrumbService.Season != null)
+						{
+							<a class="btn btn-link" href="/Titles/@BreadcrumbService.Season.SeasonId/@BreadcrumbService.Title.TitleId">
+								@BreadcrumbService.Title.Name
+							</a>
+						}
+					</div>
+					<div class="float-right">
+						@if (context.User.IsInRole("Admin"))
+						{
+							<a class="btn btn-link" href="/ManageData">Manage</a>
+						}
+						<button class="btn btn-link" @onclick="Logoff">Switch @UserManagerService.CurrentUser?.Username</button>
+						<button class="btn btn-link" @onclick="ClientAuthenticationStateProvider.Logoff">Logoff</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="content px-4" style="z-index: 500">
+				@Body
+			</div>
+		</div>
+	</Authorized>
+	<NotAuthorized>
+		<RedirectToLogin />
+	</NotAuthorized>
+</AuthorizeView>
+
+
+@code
+{
+	protected override async Task OnInitializedAsync()
+	{
+		var autState = (await AuthenticationStateTask);
+
+		if (UserManagerService.CurrentUser == null
+			&& autState.User.Identity.IsAuthenticated)
+		{
+			NavigationManager.NavigateTo("/users");
+			return;
+		}
+
+		BreadcrumbService.Changed += BreadcrumbServiceOnChanged;
+	}
+
+	private void BreadcrumbServiceOnChanged(object sender, EventArgs e)
+	{
+		StateHasChanged();
+	}
+
+	public async Task Logoff()
+	{
+		await UserManagerService.Logoff();
+	}
+}

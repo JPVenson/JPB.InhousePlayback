@@ -1,0 +1,37 @@
+@page "/Titles/{SeasonId}/"
+@using JPB.InhousePlayback.Client.Util
+
+@inherits TitlesBase
+
+<h1>Titles</h1>
+
+
+<div class="row">
+	@foreach (var title in Titles.OrderBy(e => e.OrderNo))
+	{
+		<div class="card m-2 mx-auto card-unified-container title">
+			<a href="/Player/@title.TitleId" class="btn btn-link">
+				<div class="card-unified-img-container">
+					<img src="/api/TitlesApi/ThumbnailPreview?titleId=@title.TitleId&fromEnd=false&position=@(GetImgMarker.GetStartMarker(title, BreadcrumbService.Season, BreadcrumbService.Genre) ?? 10)"
+						 class="card-img-top"
+						 alt="No Thumbnail" />
+					<div class="card-body p-1 pb-0">
+						<h5 class="card-title m-0">
+							@title.Name
+						</h5>
+					</div>
+				</div>
+			</a>
+			@if (title.Playback != null && title.Playback.Any())
+			{
+				var playback = title.Playback.First();
+
+				<div class="card-footer p-1 pb-0">
+					<a class="btn btn-link float-right m-0" href="/Player/@title.TitleId/@playback.Position">
+						<span>Continue at: @TimeSpan.FromSeconds(playback.Position).ToString("g")</span>
+					</a>
+				</div>
+			}
+		</div>
+	}
+</div>

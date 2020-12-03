@@ -1,0 +1,38 @@
+﻿@page "/Login"
+@using JPB.InhousePlayback.Shared.DbModels
+@inherits LoginBase;
+@layout MinLayout
+
+<h3>Login</h3>
+
+<div class="form-group row">
+	<label for="Password" class="col-4 col-form-label">Username</label>
+	<div class="col-8">
+		<div class="input-group">
+			<input id="Password" name="Password" type="text" class="form-control" required="required" @bind="Username">
+			<div class="input-group-append">
+				<div class="input-group-text">
+					<i class="fa fa-user-circle-o"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="form-group row">
+	<label for="password" class="col-4 col-form-label">Password</label>
+	<div class="col-8">
+		<div class="input-group">
+			<input id="password" name="password" type="password" class="form-control" required="required" @bind="Password">
+			<div class="input-group-append">
+				<div class="input-group-text">
+					<i class="fa fa-500px"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="form-group row">
+	<div class="offset-4 col-8">
+		<button name="submit" type="submit" class="btn btn-primary" @onclick="Login">Submit</button>
+	</div>
+</div>
