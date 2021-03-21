@@ -10,4 +10,9 @@ namespace JPB.InhousePlayback.Shared.ApiModel
 		public string Password { get; set; }
 		public int IdRole { get; set; }
 	}
+
+	public class StreamIdModel
+	{
+		public string Id { get; set; }
+	}
 }

@@ -13,14 +13,19 @@ using System.Threading.Tasks;
 using JPB.DataAccess.DbInfoConfig;
 using JPB.InhousePlayback.Client.Services.UserManager;
 using JPB.InhousePlayback.Server.Auth;
+using JPB.InhousePlayback.Server.Hubs.Access;
+using JPB.InhousePlayback.Server.Hubs.Impl;
 using JPB.InhousePlayback.Server.Services.Database;
 using JPB.InhousePlayback.Server.Services.Database.Models;
+using JPB.InhousePlayback.Server.Services.Media;
 using JPB.InhousePlayback.Server.Services.Thumbnail;
 using JPB.InhousePlayback.Server.Services.TitleEnumeration;
 using JPB.InhousePlayback.Server.Settings;
+using JPB.InhousePlayback.Server.Util.BufferedFileStreamResult;
 using MediaToolkit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -44,9 +49,13 @@ namespace JPB.InhousePlayback.Server
 			services.AddTransient<DbService>(provider => new DbService(Configuration, dbCache));
 			var ffpmegPath = Configuration["ffpmegPath"];
 			services.AddMediaToolkit(ffpmegPath);
+
+			services.AddSingleton<MediaService>();
 			services.AddSingleton<TitleEnumerationService>();
 			services.AddSingleton<DbInitService>();
 			services.AddSingleton<ThumbnailService>();
+			services.AddSingleton<BufferedFileStreamResultExecutor>();
+
 			services.AddScoped<IUserStore<AppUser>, AppUserStore>();
 			services.AddScoped<IRoleStore<AppRole>, AppRoleStore>();
 
@@ -64,6 +73,8 @@ namespace JPB.InhousePlayback.Server
 			services.AddControllersWithViews();
 			services.AddRazorPages();
 			services.AddCors();
+			services.AddSignalR();
+
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 			IdentityModelEventSource.ShowPII = true;
 			services
@@ -157,14 +168,14 @@ namespace JPB.InhousePlayback.Server
 			app.UseHttpsRedirection();
 			app.UseBlazorFrameworkFiles();
 			app.UseStaticFiles();
-			
+
 			app.UseRouting();
-	
+
 			app.UseCors(option => option
 				.AllowAnyOrigin()
 				.AllowAnyMethod()
 				.AllowAnyHeader());
- 
+
 			app.UseAuthentication();
 			app.UseAuthorization();
 
@@ -173,6 +184,8 @@ namespace JPB.InhousePlayback.Server
 		{
 			endpoints.MapRazorPages();
 			endpoints.MapControllers();
+			//endpoints.MapHub<SetupHub>("/setupHub");
+
 			endpoints.MapFallbackToFile("index.html");
 		});
 		}

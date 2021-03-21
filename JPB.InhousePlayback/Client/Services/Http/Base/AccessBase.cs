@@ -117,7 +117,7 @@ namespace JPB.InhousePlayback.Client.Services.Http.Base
 			HttpResponseMessage content = null;
 			try
 			{
-				using (content = await HttpClient.PostAsync(url, new MultipartContent())
+				using (content = await HttpClient.PostAsync(url, null)
 					.ConfigureAwait(false))
 				{
 					if (!content.IsSuccessStatusCode)

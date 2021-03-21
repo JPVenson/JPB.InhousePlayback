@@ -5,9 +5,9 @@
 @using Blazored.Video
 @using Blazored.Video.Support
 @using MimeKit
-@using JPB.InhousePlayback.Client.Components.VideoEx
 @using JPB.InhousePlayback.Client.Components.Fullscreen
 @using JPB.InhousePlayback.Client.Util
+@using JPB.InhousePlayback.Client.Components.CustomVideo
 @inherits VideoPlayerBase
 
 <div class="video-container" name="videoContainer">
@@ -15,7 +15,7 @@
 		@if (CurrentPlayback != null)
 		{
 			<div class="w-100 h-100 m-0 p-0 fs-video" id="videoPlaybackContainer">
-				<VideoExComponent class="w-100 h-100 fs-video"
+				<CustomVideoComponent class="w-100 h-100 fs-video"
 								  @ref="BlazoredVideo"
 								  controls="controls"
 								  autofocus="true"
@@ -29,8 +29,8 @@
 								  TimeUpdate="OnTimeUpdate"
 								  Pause="OnPlayerPaused"
 								  FullscreenRequest="OnFullscreenRequest">
-					<source src="/Api/PlaybackApi/Playback?titleId=@CurrentPlayback.TitleId" type="@MimeTypes.GetMimeType(CurrentPlayback.Location)" />
-				</VideoExComponent>
+					<source src="/Api/PlaybackApi/Playback?streamId=@StreamId" type="@MimeTypes.GetMimeType(CurrentPlayback.Location)" />
+				</CustomVideoComponent>
 				@if (ShowTitleInCurrentPlayback || ShowVolume.HasValue)
 				{
 					<div class="fs-viedo-overlay fs-video-overlay-title w-100 d-flex fs-viedo-overlay-noevent">
@@ -40,7 +40,7 @@
 								<div class="mx-auto text-center">
 									<div class="fs-video-overlay-element">
 										<span>Now Playing:</span>
-										<h2 class="text text-info">@CurrentPlayback.Name</h2>
+										<h2 class="text text-info">@CurrentPlayback.Name (@MimeTypes.GetMimeType(CurrentPlayback.Location))</h2>
 									</div>
 								</div>
 							}

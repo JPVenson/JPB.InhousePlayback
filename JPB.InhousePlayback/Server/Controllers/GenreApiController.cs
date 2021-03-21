@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -44,6 +45,36 @@ namespace JPB.InhousePlayback.Server.Controllers
 		public ActionResult Update(Genre data)
 		{
 			_db.Update(data);
+			return Ok();
+		}
+		
+		[HttpPost]
+		[Route("Delete")]
+		[Authorize(Roles = "Admin")]
+		public ActionResult Delete(int genreId)
+		{
+			var seasons = _db.Query().Select.Table<Season>()
+				.Where
+				.Column(f => f.IdGenre).Is.EqualsTo(genreId)
+				.ToArray()
+				.Select(f => f.SeasonId)
+				.ToArray();
+			if (seasons.Any())
+			{
+				foreach (var title in _db.Query().Select.Table<Title>().Where.Column(f => f.IdSeason).Is.In(seasons))
+				{
+					_db.Query().Delete<Playback>()
+						.Where
+						.Column(f => f.IdTitle).Is.EqualsTo(title.TitleId)
+						.ExecuteNonQuery();
+					_db.Delete(title);
+				}
+			}
+			foreach (var season in seasons)
+			{
+				_db.Delete<Season>(season);
+			}
+			_db.Delete<Genre>(genreId);
 			return Ok();
 		}
 

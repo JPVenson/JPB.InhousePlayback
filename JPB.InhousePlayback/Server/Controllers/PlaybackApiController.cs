@@ -2,6 +2,8 @@
 using System.Linq;
 using JPB.InhousePlayback.Server.Services.Database;
 using JPB.InhousePlayback.Server.Services.Database.Models;
+using JPB.InhousePlayback.Server.Util.BufferedFileStreamResult;
+using JPB.InhousePlayback.Shared.ApiModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
@@ -14,20 +16,47 @@ namespace JPB.InhousePlayback.Server.Controllers
 	public class PlaybackApiController : ControllerBase
 	{
 		private readonly DbService _db;
+		private readonly BufferedFileStreamResultExecutor _executor;
 
-		public PlaybackApiController(DbService db)
+		public PlaybackApiController(DbService db, BufferedFileStreamResultExecutor executor)
 		{
 			_db = db;
+			_executor = executor;
+		}
+		
+		[HttpGet]
+		[Route("StartPlayback")]
+		[AllowAnonymous]
+		public IActionResult BeginPlayback(int titleId)
+		{
+			var streamId = _executor.GetStreamId(titleId);
+			return Ok(new StreamIdModel()
+			{
+				Id = streamId
+			});
+		}
+		
+		[HttpPost]
+		[Route("EndPlayback")]
+		[AllowAnonymous]
+		public IActionResult EndPlayback(string streamId)
+		{
+			_executor.EndPlayback(streamId);
+			return Ok();
 		}
 
 		[HttpGet]
 		[Route("Playback")]
 		[AllowAnonymous]
-		public FileStreamResult Playback(int titleId)
+		public IActionResult Playback(string streamId)
 		{
-			var title = _db.SelectSingle<Title>(titleId);
-			var fileStreamResult = File(new FileStream(title.Location, FileMode.Open, FileAccess.Read),
-				MimeTypes.GetMimeType(title.Location), true);
+			//var fileStreamResult = File(new FileStream(title.Location, FileMode.Open, FileAccess.Read),
+			//	MimeTypes.GetMimeType(title.Location), true);
+
+			var streamIdObject = _executor.GetStreamId(streamId);
+
+			var fileStreamResult = new BufferedFileStreamActionResult(streamIdObject.Location,
+				streamIdObject.Id);
 			fileStreamResult.EnableRangeProcessing = true;
 			return fileStreamResult;
 		}

@@ -111,6 +111,23 @@ namespace JPB.InhousePlayback.Server.Controllers
 
 			return Ok(nextTitle);
 		}
+		
+		[HttpPost]
+		[Route("Delete")]
+		[Authorize(Roles = "Admin")]
+		public ActionResult Delete(int titleId)
+		{
+			_db.Query().Delete<Playback>()
+				.Where
+				.Column(f => f.IdTitle).Is.EqualsTo(titleId)
+				.ExecuteNonQuery();
+			_db.Query().Delete<Title>()
+				.Where
+				.Column(f => f.TitleId).Is.EqualsTo(titleId)
+				.ExecuteNonQuery();
+			return Ok();
+		}
+
 
 		[HttpGet]
 		[Route("GetAll")]

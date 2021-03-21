@@ -59,9 +59,8 @@ namespace JPB.InhousePlayback.Client.Components.VideoEx
 			}
 		}
 		
-		private async Task ConfigureEvents()
+		protected async Task ConfigureEvents()
 		{
-
 			var registerAllEvents = RegisterEventFired;
 
 			if (registerAllEvents || RegisterAbort)

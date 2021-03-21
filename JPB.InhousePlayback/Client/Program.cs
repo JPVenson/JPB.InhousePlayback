@@ -13,6 +13,7 @@ using JPB.InhousePlayback.Client.Pages.Auth;
 using JPB.InhousePlayback.Client.Services.Breadcrumb;
 using JPB.InhousePlayback.Client.Services.Http;
 using JPB.InhousePlayback.Client.Services.LocalStorage;
+using JPB.InhousePlayback.Client.Services.MyMediaSession;
 using JPB.InhousePlayback.Client.Services.UserManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
@@ -39,6 +40,8 @@ namespace JPB.InhousePlayback.Client
 			builder.Services.AddSingleton<CurrentUserStore>();
 			builder.Services.AddScoped<AuthenticationStateProvider, ClientAuthenticationStateProvider>();
 			builder.Services.AddScoped<ClientAuthenticationStateProvider>();
+			builder.Services.AddSingleton<MyMediaSessionService>();
+			//builder.Services.AddMediaSessionService();
 			//builder.Services.AddScoped<IAuthorizationPolicyProvider, ClientAuthPolicy>();
 			//builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
 			builder.Services.AddAuthorizationCore();

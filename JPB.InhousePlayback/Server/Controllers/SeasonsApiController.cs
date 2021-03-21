@@ -35,6 +35,23 @@ namespace JPB.InhousePlayback.Server.Controllers
 			_db.Update(data);
 			return Ok();
 		}
+		
+		
+		[HttpPost]
+		[Route("Delete")]
+		[Authorize(Roles = "Admin")]
+		public ActionResult Delete(int seasonId)
+		{
+			foreach (var title in _db.Query().Select.Table<Title>().Where.Column(f => f.IdSeason).Is.EqualsTo(seasonId))
+			{
+				_db.Query().Delete<Playback>()
+					.Where
+					.Column(f => f.IdTitle).Is.EqualsTo(title.TitleId)
+					.ExecuteNonQuery();
+				_db.Delete(title);
+			}
+			return Ok();
+		}
 
 		[HttpGet]
 		[Route("GetAll")]

@@ -24,6 +24,9 @@
 	<script src="scripts/fullscreen.blazored.js"></script>
 	<script src="scripts/videoEx.js"></script>
 	<link href="css/videoEx.css" rel="stylesheet" />
+	<script src="_content/Blazored.Video/blazoredVideo.js"></script>
+	<script src="scripts/blazored.mediasession.js"></script>
+	<!--<script src="_content/Blazored.MediaSession/mediaSession.js"></script>-->
 	<script>
 		window["BlazoredFocusApi"] = {
 			focusByName: function (name) {
@@ -41,26 +44,6 @@
 
 		setTitle = (title) => { document.title = title; };
 	</script>
-	<!--<script>
-		window['VideoControl'] = {
-			setProperty: function (query, name, value) {
-				try {
-					var el = $(query);
-					el.prop(name, value);
-				} catch (e) {
-					console.error(e)
-				}
-			},
-			invoke: function (query, name, ...arguments) {
-				try {
-					var el = $(query);
-					return el[0][name](name, ...arguments);
-				} catch (e) {
-					console.error(e);
-				}
-			}
-		}
-	</script>-->
 </body>
 
 </html>

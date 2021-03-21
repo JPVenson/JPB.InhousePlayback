@@ -6,11 +6,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\VideoEx\**" />
+    <Compile Remove="Components\VideoShared\**" />
+    <Content Remove="Components\VideoEx\**" />
+    <Content Remove="Components\VideoShared\**" />
+    <EmbeddedResource Remove="Components\VideoEx\**" />
+    <EmbeddedResource Remove="Components\VideoShared\**" />
+    <None Remove="Components\VideoEx\**" />
+    <None Remove="Components\VideoShared\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="compilerconfig.json" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
+    <PackageReference Include="Blazored.Video" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.10" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.1" PrivateAssets="all" />
@@ -28,6 +40,7 @@
 
   <ItemGroup>
     <Folder Include="Services\Http\Base\" />
+    <Folder Include="Services\MediaSession\" />
   </ItemGroup>
 
   <ItemGroup>

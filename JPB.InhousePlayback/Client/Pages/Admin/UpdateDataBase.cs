@@ -76,27 +76,42 @@ namespace JPB.InhousePlayback.Client.Pages.Admin
 
 		public async Task UpdateAll()
 		{
-			foreach (var genreData in Genre)
+			foreach (var genreData in Genre.ToArray())
 			{
 				if (CanUpdate(genreData))
 				{
-					await Update(genreData.Data);
+					await Update(genreData);
+					if (genreData.MarkedAsDeleted)
+					{
+						Genre.Remove(genreData);
+						continue;
+					}
 					genreData.Hash = genreData.Data.GetHashCode();
 				}
 
-				foreach (var genreDataChild in genreData.Children)
+				foreach (var genreDataChild in genreData.Children.ToArray())
 				{
 					if (CanUpdate(genreDataChild))
 					{
-						await Update(genreDataChild.Data);
+						await Update(genreDataChild);
+						if (genreDataChild.MarkedAsDeleted)
+						{
+							genreData.Children.Remove(genreDataChild);
+							continue;
+						}
 						genreDataChild.Hash = genreDataChild.Data.GetHashCode();
 					}
 
-					foreach (var titleData in genreDataChild.Children)
+					foreach (var titleData in genreDataChild.Children.ToArray())
 					{
 						if (CanUpdate(titleData))
 						{
-							await Update(titleData.Data);
+							await Update(titleData);
+							if (titleData.MarkedAsDeleted)
+							{
+								genreDataChild.Children.Remove(titleData);
+								continue;
+							}
 							titleData.Hash = titleData.Data.GetHashCode();
 						}
 					}
@@ -105,34 +120,50 @@ namespace JPB.InhousePlayback.Client.Pages.Admin
 			StateHasChanged();
 		}
 
-		public async Task Update(Title data)
+		public async Task Update(TitleData data)
 		{
-			await HttpService.TitlesApiAccess.Update(data);
+			if (data.MarkedAsDeleted)
+			{
+				await HttpService.TitlesApiAccess.Delete(data.Data.TitleId);
+				return;
+			}
+
+			await HttpService.TitlesApiAccess.Update(data.Data);
 		}
 
-		public async Task Update(Season data)
+		public async Task Update(SeasonData data)
 		{
-			await HttpService.SeasonApiAccess.Update(data);
+			if (data.MarkedAsDeleted)
+			{
+				await HttpService.SeasonApiAccess.Delete(data.Data.SeasonId);
+				return;
+			}
+			await HttpService.SeasonApiAccess.Update(data.Data);
 		}
 
-		public async Task Update(Genre data)
+		public async Task Update(GenreData data)
 		{
-			await HttpService.GenreApiAccess.Update(data);
+			if (data.MarkedAsDeleted)
+			{
+				await HttpService.GenreApiAccess.Delete(data.Data.GenreId);
+				return;
+			}
+			await HttpService.GenreApiAccess.Update(data.Data);
 		}
 
 		public bool CanUpdate(TitleData data)
 		{
-			return data.Hash != data.Data.GetHashCode();
+			return data.Hash != data.Data.GetHashCode() || data.MarkedAsDeleted;
 		}
 
 		public bool CanUpdate(SeasonData data)
 		{
-			return data.Hash != data.Data.GetHashCode();
+			return data.Hash != data.Data.GetHashCode() || data.MarkedAsDeleted;
 		}
 
 		public bool CanUpdate(GenreData data)
 		{
-			return data.Hash != data.Data.GetHashCode();
+			return data.Hash != data.Data.GetHashCode() || data.MarkedAsDeleted;
 		}
 
 		public void MoveSeason(GenreData genre, SeasonData season, bool direction)
@@ -168,7 +199,7 @@ namespace JPB.InhousePlayback.Client.Pages.Admin
 		public Genre Data { get; }
 		public IList<SeasonData> Children { get; }
 		public bool Collapsed { get; set; }
-
+		public bool MarkedAsDeleted { get; set; }
 		public int Hash { get; set; }
 	}
 
@@ -186,6 +217,7 @@ namespace JPB.InhousePlayback.Client.Pages.Admin
 		public Season Data { get; }
 		public IList<TitleData> Children { get; }
 		public bool Collapsed { get; set; }
+		public bool MarkedAsDeleted { get; set; }
 	}
 
 	public class TitleData
@@ -197,7 +229,7 @@ namespace JPB.InhousePlayback.Client.Pages.Admin
 		}
 
 		public int Hash { get; set; }
-
+		public bool MarkedAsDeleted { get; set; }
 		public Title Data { get; set; }
 	}
 }

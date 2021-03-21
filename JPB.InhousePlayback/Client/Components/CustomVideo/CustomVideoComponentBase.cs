@@ -1,33 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Blazored.Video;
-using JPB.InhousePlayback.Client.Components.VideoShared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace JPB.InhousePlayback.Client.Components.VideoEx
+namespace JPB.InhousePlayback.Client.Components.CustomVideo
 {
-	public partial class VideoExComponentBase : ComponentBase, IDisposable
+	public class CustomVideoComponentBase : BlazoredVideo
 	{
-		public VideoExComponentBase()
-		{
-
-		}
-
 		public string ContainerId { get; set; } = Guid.NewGuid().ToString("N");
 
 		[Parameter]
 		public EventCallback FullscreenRequest { get; set; }
 		[Parameter]
 		public EventCallback<bool> ShowControlsChanged { get; set; }
+		
+		[Parameter]
+		public Func<string> GetPoster { get; set; }
 		[Parameter]
 		public bool ShowControls { get; set; }
 
-		[Parameter]
-		public Func<string> GetPoster { get; set; }
 
 		protected override async Task OnAfterRenderAsync(bool firstRender)
 		{
@@ -40,10 +34,6 @@ namespace JPB.InhousePlayback.Client.Components.VideoEx
 					id = ContainerId,
 					that = DotNetObjectReference.Create(this)
 				});
-			}
-			if (firstRender)
-			{
-				await ConfigureEvents();
 			}
 		}
 
@@ -58,11 +48,6 @@ namespace JPB.InhousePlayback.Client.Components.VideoEx
 		{
 			ShowControls = showControls;
 			await ShowControlsChanged.InvokeAsync(showControls);
-		}
-
-		public async Task SetMediaData(MediaData mediaData)
-		{
-			await JS.InvokeVoidAsync("Blazored.setMediaData", mediaData);
 		}
 
 		public void Dispose()

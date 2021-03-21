@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Timers;
 using Blazored.Video;
 using Blazored.Video.Support;
+using JPB.InhousePlayback.Client.Components.CustomVideo;
 using JPB.InhousePlayback.Client.Components.Fullscreen;
-using JPB.InhousePlayback.Client.Components.VideoEx;
 using JPB.InhousePlayback.Client.Services.Breadcrumb;
 using JPB.InhousePlayback.Client.Services.Http;
+using JPB.InhousePlayback.Client.Services.MediaSession;
+using JPB.InhousePlayback.Client.Services.MyMediaSession;
 using JPB.InhousePlayback.Client.Services.UserManager;
 using JPB.InhousePlayback.Client.Util;
 using JPB.InhousePlayback.Shared.DbModels;
@@ -57,10 +60,15 @@ namespace JPB.InhousePlayback.Client.Pages
 		[Inject]
 		public NavigationManager NavigationManager { get; set; }
 
-		public VideoExComponent BlazoredVideo { get; set; }
+		[Inject]
+		public MyMediaSessionService MediaSessionService { get; set; }
+
+		public CustomVideoComponent BlazoredVideo { get; set; }
 		public Dictionary<VideoEvents, VideoStateOptions> VideoStateOptions { get; set; }
 		
 		public Title CurrentPlayback { get; set; }
+		public string StreamId { get; set; }
+
 		public Playback LastPlayback { get; set; }
 
 		public Timer Timer { get; set; }
@@ -84,6 +92,11 @@ namespace JPB.InhousePlayback.Client.Pages
 			}
 		}
 
+		private void WriteDebugLine(string line)
+		{
+			//Console.WriteLine(line);
+		}
+
 		public DateTime TitleShown { get; set; }
 		public bool ShowNextTitle { get; set; }
 		public DateTime? ShowVolume { get; set; }
@@ -104,6 +117,25 @@ namespace JPB.InhousePlayback.Client.Pages
 				}
 				await StartPlaybackOf(title, at);
 			}
+
+			await MediaSessionService.ActivateEventsCore();
+			RegisterMediaSessionEvents();
+		}
+
+		private void RegisterMediaSessionEvents()
+		{
+			MediaSessionService.Play += MediaSessionService_Play;
+			MediaSessionService.Pause += MediaSessionServiceOnPause;
+		}
+
+		private async void MediaSessionServiceOnPause(object sender, MediaSessionEventData e)
+		{
+			await BlazoredVideo.PausePlayback();
+		}
+
+		private async void MediaSessionService_Play(object sender, MediaSessionEventData e)
+		{
+			await BlazoredVideo.StartPlayback();
 		}
 
 		public string GetPoster()
@@ -164,6 +196,14 @@ namespace JPB.InhousePlayback.Client.Pages
 				}
 
 				CurrentPlayback = title;
+				if (StreamId != null)
+				{
+					await HttpService.PlaybackApiAccess.EndStream(StreamId);
+				}
+
+				var streamId = (await HttpService.PlaybackApiAccess.GetStreamId(CurrentPlayback.TitleId)).Object.Id;
+				StreamId = WebUtility.UrlEncode(streamId);
+				
 				LastPlayback = title.Playback?.FirstOrDefault();
 				TitleId = CurrentPlayback.TitleId.ToString();
 				ShowTitleInCurrentPlayback = true;
@@ -173,16 +213,16 @@ namespace JPB.InhousePlayback.Client.Pages
 				await Task.Yield();
 				await GetNextTitle();
 				await BlazoredVideo.ReloadControl();
-				await BlazoredVideo.SetMediaData(new MediaData()
+				await MediaSessionService.SetMediaMetaData(new MediaData()
 				{
 					Title = CurrentPlayback.Name,
 					Album = BreadcrumbService.Season.Name,
 					Artist = BreadcrumbService.Genre.Name,
-					Artwork = new MediaDataArtwork[]
+					Artworks = new[]
 					{
 						new MediaDataArtwork()
 						{
-							Src = GetPoster(),
+							Source = GetPoster(),
 							Type = MimeTypes.GetMimeType("jpeg"),
 							Sizes = "96x96"
 						}, 
@@ -211,6 +251,11 @@ namespace JPB.InhousePlayback.Client.Pages
 			Timer?.Dispose();
 			NextTitleBox?.Dispose();
 			FullscreenComponent?.Dispose();
+			
+			if (StreamId != null)
+			{
+				HttpService.PlaybackApiAccess.EndStream(StreamId).Wait();
+			}
 		}
 
 		public void ShowControlsExtChanged(bool status)
@@ -225,9 +270,18 @@ namespace JPB.InhousePlayback.Client.Pages
 
 		public async void OnVolumeChanged(VideoState obj)
 		{
+			WriteDebugLine("Volume Changed");
 			Volume = obj.Volume;
 			ShowVolume = DateTime.Now.AddSeconds(5);
 			StateHasChanged();
+
+			WriteDebugLine("Load Buffer");
+			var buffers = BlazoredVideo.Buffered;
+			WriteDebugLine("There are: " + buffers.Count);
+			foreach (var timeRange in buffers)
+			{
+				WriteDebugLine($"\t {timeRange.Index}|{timeRange.Start} -- {timeRange.End}");
+			}
 		}
 
 		public async void OnTimeUpdate(VideoState obj)
@@ -243,7 +297,7 @@ namespace JPB.InhousePlayback.Client.Pages
 
 			if (ShowNextTitle == false && LastKnownPosition >= shouldDisplayAt && obj.Duration > 0)
 			{
-				Console.WriteLine("Show Box: LAST" + LastKnownPosition + "|" + shouldDisplayAt);
+				WriteDebugLine("Show Box: LAST" + LastKnownPosition + "|" + shouldDisplayAt);
 				await DisplayNextTitleBox();
 			}
 			else if (ShowNextTitle && LastKnownPosition <= shouldDisplayAt)

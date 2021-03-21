@@ -31,5 +31,10 @@ namespace JPB.InhousePlayback.Client.Services.Http
 		{
 			return await Post(BuildUrl(base.Url + "Update"), title);
 		}
+
+		public async Task<ApiResult> Delete(int seasonId)
+		{
+			return await Post(BuildUrl(base.Url + "Delete", new { seasonId }));
+		}
 	}
 }

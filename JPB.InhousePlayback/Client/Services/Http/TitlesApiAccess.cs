@@ -29,11 +29,16 @@ namespace JPB.InhousePlayback.Client.Services.Http
 			}));
 		}
 
+		public async Task<ApiResult> Delete(int titleId)
+		{
+			return await Post(BuildUrl(base.Url + "Delete", new { titleId }));
+		}
+
 		public async Task<ApiResult> Update(Title title)
 		{
 			return await Post(BuildUrl(base.Url + "Update"), title);
 		}
-		
+
 		public async Task<ApiResult<PlaybackWithTitle[]>> GetLastPlayed(int userId)
 		{
 			return await Get<PlaybackWithTitle[]>(BuildUrl(base.Url + "GetLastPlayed", new

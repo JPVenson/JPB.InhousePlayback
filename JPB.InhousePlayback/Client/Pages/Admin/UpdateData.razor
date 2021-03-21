@@ -3,11 +3,8 @@
 @using System.IO
 @using JPB.InhousePlayback.Client.Util
 @inherits UpdateDataBase
-
-@functions {
-
-}
 @attribute [Authorize(Roles = "Admin")]
+
 <div class="d-flex">
 	<h3 class="float-left">
 		UpdateData
@@ -82,6 +79,7 @@
 					<input @bind="genre.Data.OffsetEnd" type="number" class="form-control" />
 				</td>
 				<td>
+					<button class="btn btn-danger" @onclick="(() => genre.MarkedAsDeleted = !genre.MarkedAsDeleted)">Delete</button>
 				</td>
 			</tr>
 			@if (genre.Children.Any() && !genre.Collapsed)
@@ -165,6 +163,7 @@
 											        placeholder="@TimeSpan.FromSeconds(GetImgMarker.GetEndMarker(null, season.Data, genre.Data) ?? 0).TotalSeconds" />
 										</td>
 										<td>
+											<button class="btn btn-danger" @onclick="(() => season.MarkedAsDeleted = !season.MarkedAsDeleted)">Delete</button>
 										</td>
 									</tr>
 
@@ -260,6 +259,7 @@
 																	</div>
 																</td>
 																<td>
+																	<button class="btn btn-danger" @onclick="(() => title.MarkedAsDeleted = !title.MarkedAsDeleted)">Delete</button>
 																</td>
 															</tr>
 
