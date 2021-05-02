@@ -1,11 +1,20 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 using JPB.InhousePlayback.Client.Services.Http.Base;
+using JPB.InhousePlayback.Client.Services.Http.SignalRBase;
 using JPB.InhousePlayback.Shared.ApiModel;
 using JPB.InhousePlayback.Shared.DbModels;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace JPB.InhousePlayback.Client.Services.Http
 {
+	public class SetupApiAccess : HubClientBase
+	{
+		public SetupApiAccess(HttpService client) : base("SetupHub", client)
+		{
+		}
+	}
+
 	public class PlaybackApiAccess : AccessBase
 	{
 		public PlaybackApiAccess(HttpClient httpClient) : base(httpClient, BuildApi("PlaybackApi"))

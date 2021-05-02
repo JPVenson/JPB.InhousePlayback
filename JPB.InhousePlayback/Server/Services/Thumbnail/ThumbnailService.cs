@@ -11,6 +11,7 @@ using ImageMagick;
 using JPB.InhousePlayback.Client.Services.UserManager;
 using JPB.InhousePlayback.Server.Services.Database;
 using JPB.InhousePlayback.Server.Services.Database.Models;
+using JPB.InhousePlayback.Server.Services.TitleEnumeration;
 using MediaToolkit.Services;
 using MediaToolkit.Tasks;
 using MediaToolkit.Util;
@@ -89,7 +90,8 @@ namespace JPB.InhousePlayback.Server.Services.Thumbnail
 			return Task.Run(async () =>
 			{
 				var time = TimeSpan.FromSeconds(position);
-				var getThumbnailResult = await _mediaToolkitService.ExecuteAsync(new FfTaskGetThumbnail(title.Location,
+				var inputFilePath = TitleEnumerationService.GetUncPath(title.Location);
+				var getThumbnailResult = await _mediaToolkitService.ExecuteAsync(new FfTaskGetThumbnail(inputFilePath,
 					new GetThumbnailOptions()
 					{
 						SeekSpan = time,

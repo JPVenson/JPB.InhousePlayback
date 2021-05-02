@@ -55,6 +55,7 @@ namespace JPB.InhousePlayback.Server
 			services.AddSingleton<DbInitService>();
 			services.AddSingleton<ThumbnailService>();
 			services.AddSingleton<BufferedFileStreamResultExecutor>();
+			services.AddSingleton<SetupHubAccess>();
 
 			services.AddScoped<IUserStore<AppUser>, AppUserStore>();
 			services.AddScoped<IRoleStore<AppRole>, AppRoleStore>();
@@ -76,7 +77,7 @@ namespace JPB.InhousePlayback.Server
 			services.AddSignalR();
 
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-			IdentityModelEventSource.ShowPII = true;
+			//IdentityModelEventSource.ShowPII = true;
 			services
 				.AddAuthentication(options =>
 				{
@@ -86,32 +87,6 @@ namespace JPB.InhousePlayback.Server
 				.AddJwtBearer(options =>
 				{
 					options.Events = new JwtBearerEvents();
-					//options.Events.OnAuthenticationFailed = context =>
-					//{
-					//	Console.WriteLine();
-					//	return Task.CompletedTask;
-					//};
-					//options.Events.OnChallenge = context =>
-					//{
-					//	Console.WriteLine();
-					//	return Task.CompletedTask;
-					//};
-					//options.Events.OnForbidden = context =>
-					//{
-					//	Console.WriteLine();
-					//	return Task.CompletedTask;
-					//};
-					//options.Events.OnMessageReceived = context =>
-					//{
-					//	Console.WriteLine();
-					//	return Task.CompletedTask;
-					//};
-					//options.Events.OnTokenValidated = context =>
-					//{
-					//	Console.WriteLine();
-					//	return Task.CompletedTask;
-					//};
-
 					options.TokenValidationParameters = new TokenValidationParameters
 					{
 						ValidIssuer = Configuration.GetSection("TokenSettings").GetValue<string>("Issuer"),
@@ -156,7 +131,6 @@ namespace JPB.InhousePlayback.Server
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseWebAssemblyDebugging();
 			}
 			else
 			{
@@ -166,9 +140,8 @@ namespace JPB.InhousePlayback.Server
 			}
 
 			app.UseHttpsRedirection();
-			app.UseBlazorFrameworkFiles();
 			app.UseStaticFiles();
-
+			app.UseBlazorFrameworkFiles();
 			app.UseRouting();
 
 			app.UseCors(option => option

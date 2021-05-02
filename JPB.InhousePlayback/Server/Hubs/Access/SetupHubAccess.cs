@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JPB.InhousePlayback.Server.Hubs.Impl;
+using JPB.InhousePlayback.Shared.ApiModel;
 using Microsoft.AspNetCore.SignalR;
 
 namespace JPB.InhousePlayback.Server.Hubs.Access
@@ -19,6 +20,11 @@ namespace JPB.InhousePlayback.Server.Hubs.Access
 		public Task SendSetupProgress(string taskName, int progress, int maxProgress)
 		{
 			return _hub.Clients.All.SendAsync("OnProgress", taskName, progress, maxProgress);
+		}
+
+		public Task SendTitleEnumerationProgress(SyncProgress syncProgress)
+		{
+			return _hub.Clients.All.SendAsync("OnSyncProgress", syncProgress);
 		}
 	}
 }

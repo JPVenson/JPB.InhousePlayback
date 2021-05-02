@@ -9,8 +9,8 @@
 			</svg>
 		</div>
 		
-		<video id="@UniqueKey" @key="UniqueKey" @ref="videoRef" @attributes=@Attributes @onchange=@OnChange
-		       controls class="video" preload="auto" poster="@GetPoster()">
+		<video id="@UniqueKey" @key="UniqueKey" @ref="videoRef" @attributes="Attributes" @onchange="OnChange"
+		       controls="" class="video" preload="auto" poster="@GetPoster()">
 			@ChildContent
 		</video>
 		<div class="video-ex-video-controls hidden" id="video-controls">

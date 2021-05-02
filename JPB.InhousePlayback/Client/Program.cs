@@ -27,7 +27,7 @@ namespace JPB.InhousePlayback.Client
 		public static async Task Main(string[] args)
 		{
 			var builder = WebAssemblyHostBuilder.CreateDefault(args);
-			builder.RootComponents.Add<App>("app");
+			builder.RootComponents.Add<App>("#app");
 			builder.Services.AddSingleton(sp => new HttpClient
 			{
 				BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)

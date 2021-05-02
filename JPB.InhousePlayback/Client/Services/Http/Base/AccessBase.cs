@@ -13,11 +13,11 @@ using Newtonsoft.Json;
 
 namespace JPB.InhousePlayback.Client.Services.Http.Base
 {
-	public class AccessBase
+	public abstract class AccessBase
 	{
 		private JsonSerializerSettings _jsonSerializerSettings;
 
-		public AccessBase(HttpClient httpClient, string url)
+		protected AccessBase(HttpClient httpClient, string url)
 		{
 			HttpClient = httpClient;
 			Url = url;

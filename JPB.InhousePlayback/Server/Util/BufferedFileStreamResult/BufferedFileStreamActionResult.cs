@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 using JPB.InhousePlayback.Server.Services.Database;
 using JPB.InhousePlayback.Server.Services.Database.Models;
 using JPB.InhousePlayback.Server.Services.Media;
+using JPB.InhousePlayback.Server.Services.TitleEnumeration;
 using MediaToolkit;
 using MediaToolkit.Services;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -33,7 +34,7 @@ namespace JPB.InhousePlayback.Server.Util.BufferedFileStreamResult
 
 		public BufferedFileStreamActionResult(string fileName, string streamId) : base(MimeTypes.GetMimeType(fileName))
 		{
-			FileName = fileName;
+			FileName = TitleEnumerationService.GetUncPath(fileName);
 			StreamId = streamId;
 		}
 
